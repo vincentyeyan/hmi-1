@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag and Drop Image Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .drop-area {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .drop-square {
+            width: 100%;
+            aspect-ratio: 1;
+            background-color: #fff;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: transform 0.1s;
+        }
+
+        .drop-square img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .remove-icon {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background-color: #ff3b30;
+            color: white;
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 10;
+        }
+
+        .gallery-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 10px 0;
+        }
+
+        .image-gallery {
+            display: flex;
+            gap: 15px;
+            padding: 10px;
+            width: max-content;
+        }
+
+        .gallery-item {
+            width: 80px;
+            height: 80px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: grab;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .edit-mode .drop-square {
+            animation: shake 0.5s infinite;
+        }
+
+        .edit-mode .remove-icon {
+            display: flex;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-1deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(1deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* For mobile devices */
+        @media (max-width: 600px) {
+            .drop-area {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Gallery</h1>
+        
+        <div class="drop-area">
+            <div class="drop-square" ondrop="drop(event)" ondragover="allowDrop(event)" data-index="0">
+                <div class="remove-icon">-</div>
+            </div>
+            <div class="drop-square" ondrop="drop(event)" ondragover="allowDrop(event)" data-index="1">
+                <div class="remove-icon">-</div>
+            </div>
+            <div class="drop-square" ondrop="drop(event)" ondragover="allowDrop(event)" data-index="2">
+                <div class="remove-icon">-</div>
+            </div>
+            <div class="drop-square" ondrop="drop(event)" ondragover="allowDrop(event)" data-index="3">
+                <div class="remove-icon">-</div>
+            </div>
+            <div class="drop-square" ondrop="drop(event)" ondragover="allowDrop(event)" data-index="4">
+                <div class="remove-icon">-</div>
+            </div>
+            <div class="drop-square" ondrop="drop(event)" ondragover="allowDrop(event)" data-index="5">
+                <div class="remove-icon">-</div>
+            </div>
+        </div>
+
+        <div class="gallery-container">
+            <div class="image-gallery" id="imageGallery">
+                <!-- Images will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample image URLs - replace with your own images
+        const imageUrls = [
+            'https://picsum.photos/id/1/200',
+            'https://picsum.photos/id/10/200',
+            'https://picsum.photos/id/100/200',
+            'https://picsum.photos/id/1000/200',
+            'https://picsum.photos/id/1001/200',
+            'https://picsum.photos/id/1002/200',
+            'https://picsum.photos/id/1003/200',
+            'https://picsum.photos/id/1004/200',
+            'https://picsum.photos/id/1005/200',
+            'https://picsum.photos/id/1006/200',
+            'https://picsum.photos/id/1008/200',
+            'https://picsum.photos/id/1009/200',
+        ];
+
+        // Populate the image gallery
+        const imageGallery = document.getElementById('imageGallery');
+        
+        imageUrls.forEach((url, index) => {
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+            galleryItem.draggable = true;
+            galleryItem.setAttribute('data-image-url', url);
+            galleryItem.setAttribute('data-image-id', index);
+            galleryItem.addEventListener('dragstart', drag);
+            
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = `Image ${index + 1}`;
+            
+            galleryItem.appendChild(img);
+            imageGallery.appendChild(galleryItem);
+        });
+
+        // Track which images are placed in which squares
+        const placedImages = Array(6).fill(null);
+        let editMode = false;
+        let longPressTimer;
+        const longPressDuration = 500; // ms
+
+        // Drag and drop functions
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drag(event) {
+            const imageId = event.target.getAttribute('data-image-id');
+            const imageUrl = event.target.getAttribute('data-image-url');
+            const sourceIndex = event.target.parentElement.hasAttribute('data-index') ? 
+                                event.target.parentElement.getAttribute('data-index') : null;
+            
+            const data = {
+                imageId,
+                imageUrl,
+                sourceIndex
+            };
+            
+            event.dataTransfer.setData("text/plain", JSON.stringify(data));
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const data = JSON.parse(event.dataTransfer.getData("text/plain"));
+            const targetSquare = event.target.closest('.drop-square');
+            const targetIndex = targetSquare.getAttribute('data-index');
+            
+            // If there was an image in the source square, clear it
+            if (data.sourceIndex !== null) {
+                const sourceSquare = document.querySelector(`.drop-square[data-index="${data.sourceIndex}"]`);
+                const existingImg = sourceSquare.querySelector('img');
+                if (existingImg) {
+                    sourceSquare.removeChild(existingImg);
+                }
+                placedImages[data.sourceIndex] = null;
+            }
+            
+            // Clear any existing image in the target square
+            const existingImg = targetSquare.querySelector('img');
+            if (existingImg) {
+                targetSquare.removeChild(existingImg);
+            }
+            
+            // Create and add the new image
+            const img = document.createElement('img');
+            img.src = data.imageUrl;
+            img.alt = `Placed Image ${data.imageId}`;
+            img.draggable = true;
+            img.setAttribute('data-image-id', data.imageId);
+            img.setAttribute('data-image-url', data.imageUrl);
+            img.addEventListener('dragstart', drag);
+            
+            // Add long press event for edit mode
+            img.addEventListener('mousedown', startLongPress);
+            img.addEventListener('touchstart', startLongPress, { passive: true });
+            img.addEventListener('mouseup', cancelLongPress);
+            img.addEventListener('mouseleave', cancelLongPress);
+            img.addEventListener('touchend', cancelLongPress);
+            img.addEventListener('touchcancel', cancelLongPress);
+            
+            targetSquare.appendChild(img);
+            placedImages[targetIndex] = data.imageUrl;
+        }
+
+        // Long press functions for edit mode
+        function startLongPress(event) {
+            longPressTimer = setTimeout(() => {
+                toggleEditMode();
+            }, longPressDuration);
+        }
+
+        function cancelLongPress() {
+            clearTimeout(longPressTimer);
+        }
+
+        function toggleEditMode() {
+            editMode = !editMode;
+            const container = document.querySelector('.container');
+            
+            if (editMode) {
+                container.classList.add('edit-mode');
+                
+                // Add click event to remove icons
+                document.querySelectorAll('.remove-icon').forEach(icon => {
+                    icon.addEventListener('click', removeImage);
+                });
+            } else {
+                container.classList.remove('edit-mode');
+                
+                // Remove click event from remove icons
+                document.querySelectorAll('.remove-icon').forEach(icon => {
+                    icon.removeEventListener('click', removeImage);
+                });
+            }
+        }
+
+        function removeImage(event) {
+            const square = event.target.closest('.drop-square');
+            const index = square.getAttribute('data-index');
+            const img = square.querySelector('img');
+            
+            if (img) {
+                square.removeChild(img);
+                placedImages[index] = null;
+            }
+        }
+
+        // Exit edit mode when clicking outside
+        document.addEventListener('click', (event) => {
+            if (editMode && !event.target.closest('.remove-icon') && !event.target.closest('img')) {
+                toggleEditMode();
+            }
+        });
+    </script>
+</body>
+</html> 
