@@ -1,38 +1,1124 @@
-.App {
-  text-align: center;
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Base styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #121212 0%, #1e2030 100%);
+  color: #f7f7f7;
+  line-height: 1.5;
+  overscroll-behavior: none; /* Prevent scroll chaining */
+  overflow: hidden; /* Prevent body scrolling */
+  position: fixed; /* Fix the body in place */
+  width: 100%;
+  height: 100%;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.app-layout {
+  display: flex;
+  height: 100vh;
+  user-select: none; /* Prevent text selection */
+  /* Prevent iOS overscroll behavior */
+  overscroll-behavior: none;
+  -webkit-overscroll-behavior: none;
+  background: linear-gradient(135deg, #121212 0%, #1e2030 80%, #252a41 100%);
+  position: fixed; /* Fixed position to prevent movement */
+  width: 100%;
+  top: 0;
+  left: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Sidebar styles */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 110px; /* Original width */
+  height: 100vh; /* Full height */
+  background-color: rgba(21, 23, 36, 0.98);
+  backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 15px 0 30px; /* Reduced top padding, maintained bottom padding */
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.4);
+  z-index: 200;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.toggle-switch {
+  margin-bottom: 20px;
+}
+
+.toggle-switch input[type="checkbox"] {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+
+.toggle-switch label {
+  cursor: pointer;
+  width: 40px;
+  height: 20px;
+  background: #333;
+  display: block;
+  border-radius: 100px;
+  position: relative;
+}
+
+.toggle-switch label:after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 90px;
+  transition: 0.3s;
+}
+
+.toggle-switch input:checked + label {
+  background: #4285f4;
+}
+
+.toggle-switch input:checked + label:after {
+  left: calc(100% - 2px);
+  transform: translateX(-100%);
+}
+
+.sidebar-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 40px; /* Gap between icons */
+  margin-top: 0; /* Remove margin, use positioning on first child instead */
+  width: 100%;
+  padding-top: 0; /* Remove padding, use positioning on first child instead */
+  padding-left: 0;
+  padding-right: 0;
+  align-items: center;
+}
+
+.sidebar-icon {
+  width: 100%;
+  height: 65px; /* Slightly reduced height */
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.sidebar-icon img {
+  width: 50px; /* Slightly reduced size */
+  height: 50px;
+  object-fit: contain;
+  transition: all 0.2s ease;
+  filter: brightness(0.8);
+}
+
+.sidebar-icon:hover img {
+  filter: brightness(1.2);
+  transform: scale(1.1);
+}
+
+/* Active state for sidebar icons */
+.sidebar-icon.active {
+  background: linear-gradient(90deg, rgba(66, 133, 244, 0.12), transparent);
+}
+
+.sidebar-icon.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, #4285F4, #34A853);
+  border-radius: 0 2px 2px 0;
+}
+
+.sidebar-icon.active img {
+  filter: brightness(1.2);
+}
+
+/* Touch feedback for mobile devices */
+@media (hover: none) {
+  .sidebar-icon:active {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: scale(0.95);
+  }
+  
+  .sidebar-icon:active img {
+    transform: scale(1.05);
+  }
+}
+
+/* Tooltip styles */
+.sidebar-tooltip {
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%) translateX(100%);
+  background-color: rgba(21, 23, 36, 0.95);
   color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 300;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  pointer-events: none; /* So it doesn't interfere with clicks */
 }
 
-.App-link {
-  color: #61dafb;
+/* Add a triangle pointer */
+.sidebar-tooltip:before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 6px 6px 6px 0;
+  border-style: solid;
+  border-color: transparent rgba(21, 23, 36, 0.95) transparent transparent;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Main content styles */
+.main-content {
+  margin-left: 110px !important; /* Match sidebar width */
+  padding: 0;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  width: calc(100% - 110px); /* Ensure proper width calculation */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overscroll-behavior: none;
+  -webkit-overscroll-behavior: none;
+  touch-action: none; /* Disable browser touch actions on main content */
+}
+
+.content-wrapper {
+  width: 100%;
+  display: flex;
+  height: 100%;
+  overscroll-behavior: none;
+  -webkit-overscroll-behavior: none;
+  position: relative;
+}
+
+/* Title section for drop zones */
+.drop-zone-title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 40px 0 20px 0; /* Reduced from 80px to 40px top margin */
+  padding: 0 20px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.5px;
+  border-bottom: none;
+  width: 100%;
+  max-width: none;
+  z-index: 50;
+}
+
+.drop-zone-title h1 {
+  font-size: 20px;
+  margin: 0 0 20px;
+  font-weight: 600;
+}
+
+.drop-zone-title .category-title {
+  margin-top: 0;
+  margin-bottom: 40px;
+}
+
+.drop-zone-title .instruction-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin: 0 0 40px 0;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* Gallery styles - vertical list of car controls */
+.gallery-container {
+  width: 320px; /* Reduced from 350px */
+  height: 100vh;
+  overflow-y: hidden; /* Changed from auto to hidden */
+  background-color: rgba(25, 26, 36, 0.7);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0 0 15px 0; /* Removed top padding */
+  display: flex;
+  flex-direction: column;
+  position: relative; /* Add positioning context */
+}
+
+.gallery-title {
+  text-align: left;
+  margin: 40px 0 20px 0;
+  padding: 0 20px;
+  font-size: 22px; /* Increased from 20px */
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.5px;
+}
+
+.image-gallery-wrapper {
+  height: calc(100vh - 100px); /* Adjusted to account for reduced title's top margin */
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(28, 30, 36, 0.5);
+  -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+  position: relative; /* Add positioning */
+  overscroll-behavior: contain; /* Contain overscroll to this element */
+  -webkit-overscroll-behavior: contain;
+}
+
+.image-gallery-wrapper::-webkit-scrollbar {
+  width: 5px;
+  background: rgba(28, 30, 36, 0.5);
+}
+
+.image-gallery-wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.image-gallery {
+  display: flex;
+  flex-direction: column;
+  padding: 0 15px;
+  position: relative;
+  overscroll-behavior: contain;
+  -webkit-overscroll-behavior: contain;
+}
+
+.gallery-category {
+  margin-bottom: 20px; /* Reduced from 25px */
+  padding: 0 5px;
+}
+
+.category-title {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  margin: 0 0 15px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: left;
+  font-weight: 600;
+}
+
+.category-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Reduced from 15px for tighter spacing */
+  padding-bottom: 8px;
+  padding-right: 15px;
+}
+
+/* Gallery item styling - larger icons, less padding */
+.gallery-item {
+  width: 100%;
+  height: 100px; /* Increased height for larger icons */
+  background: linear-gradient(90deg, rgba(40, 42, 54, 0.8), rgba(35, 37, 49, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: grab;
+  cursor: -webkit-grab;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  transition: all 0.2s ease;
+  padding: 5px 8px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  margin-right: 8px;
+}
+
+.gallery-item:active {
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
+  transform: scale(0.98);
+  background: linear-gradient(90deg, rgba(50, 53, 68, 0.9), rgba(45, 48, 63, 0.9));
+}
+
+.gallery-item img {
+  min-width: 80px; /* Increased minimum width */
+  width: 80px; /* Larger base size */
+  height: 80px; /* Increased height */
+  object-fit: contain;
+  margin-right: 8px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  flex: 0 0 auto;
+  transform: scale(1.8); /* Make icon even larger */
+}
+
+.gallery-item-name {
+  font-size: 16px; /* Increased from 15px */
+  color: rgba(255, 255, 255, 0.9);
+  text-align: left;
+  font-weight: 500;
+  flex: 1;
+  padding-right: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Styling for placed items */
+.gallery-item.placed {
+  background: linear-gradient(90deg, rgba(20, 22, 32, 0.95), rgba(28, 30, 40, 0.95));
+  border: 1px solid rgba(100, 100, 100, 0.2);
+  opacity: 0.85;
+}
+
+.gallery-item.placed:after {
+  content: "";
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background-color: #1a73e8;
+  border-radius: 50%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white' width='18px' height='18px'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px;
+}
+
+/* Drop zones container styles */
+.drop-zones-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center the drop zones vertically */
+  align-items: stretch;
+  height: 100%;
+  padding-top: 0;
+  background: linear-gradient(135deg, rgba(18, 19, 29, 0.8) 0%, rgba(25, 27, 40, 0.8) 100%);
+  position: relative; /* For absolute positioning of the title */
+}
+
+/* Dedicated background image element - Removed */
+.background-image {
+  display: none;
+}
+
+/* Remove the pseudo-element background */
+.drop-zones-wrapper::before {
+  display: none;
+}
+
+/* Drop area styles - Square formation instead of diamond */
+.drop-grid {
+  position: relative;
+  z-index: 50;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 150px; /* Increased gap between left and right modules */
+  margin: 0 auto;
+  padding-left: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.diamond-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 25px; /* Increase gap between buttons */
+  width: 320px; /* Increased size for larger drop zones */
+  height: 320px; /* Increased size for larger drop zones */
+  position: relative;
+  z-index: 50;
+  align-items: center;
+  justify-items: center;
+}
+
+.drop-item {
+  position: relative;
+  width: 140px; /* Increased size from 110px */
+  height: 140px; /* Increased size from 110px */
+  cursor: pointer;
+  z-index: 50;
+}
+
+/* Remove diamond positioning */
+.diamond-group .drop-item:nth-child(1),
+.diamond-group .drop-item:nth-child(2),
+.diamond-group .drop-item:nth-child(3),
+.diamond-group .drop-item:nth-child(4) {
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  transform: none;
+}
+
+.drop-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(35, 37, 49, 0.4), rgba(25, 27, 40, 0.3));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transform: none; /* Remove 45-degree rotation */
+  -webkit-transform: none;
+  -ms-transform: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  -webkit-transition: all 0.3s ease;
+  border-radius: 15px;
+  -webkit-border-radius: 15px;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 0;
+  z-index: 50;
+  position: relative;
+}
+
+.drop-content.empty {
+  background: linear-gradient(135deg, rgba(35, 37, 49, 0.4), rgba(25, 27, 40, 0.3));
+  z-index: 50;
+  position: relative;
+}
+
+.drop-content.has-image {
+  background: linear-gradient(135deg, rgba(22, 24, 34, 0.95) 0%, rgba(28, 30, 45, 0.9) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 0 15px rgba(255, 255, 255, 0.05);
+}
+
+/* Drop content images - adjust size for non-rotated view */
+.drop-content img {
+  width: 100%; /* Fill the entire container */
+  height: 100%;
+  object-fit: contain; /* Maintain proportions */
+  transition: all 0.3s ease;
+  -webkit-transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+  transform: scale(1.8); /* Dramatically increased scale factor for maximum fill */
+  -webkit-transform: scale(1.8);
+  -ms-transform: scale(1.8);
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  user-select: none;
+  display: block;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  max-height: none;
+}
+
+/* Move the image title outside and below the drop-content */
+.image-title-container {
+  position: absolute;
+  bottom: -22px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.image-title {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Plus icon for empty drop zones - adjusted for non-rotated view */
+.plus-icon {
+  font-size: 38px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 300;
+  transition: all 0.2s ease;
+  transform: none; /* Remove counter-rotation */
+  -webkit-transform: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+}
+
+.drop-content:hover .plus-icon {
+  color: rgba(255, 255, 255, 0.6);
+  transform: none; /* Remove rotation */
+}
+
+/* Update empty drop area to not use rotation */
+.empty-drop-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  transform: none; /* Remove counter-rotation */
+}
+
+/* Remove icon - improve positioning */
+.remove-icon {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px; /* Further reduced size */
+  height: 20px; /* Further reduced size */
+  background-color: #ff3b30;
+  color: white;
+  border-radius: 50%; /* Ensure it's perfectly round */
+  display: none;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 18px; /* Smaller font size */
+  line-height: 18px; /* Match line-height to font size */
+  z-index: 1000;
+  cursor: pointer;
+  transform: none;
+  -webkit-transform: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  /* Replace minus character with custom styles for perfect centering */
+  padding: 0;
+  margin: 0;
+  
+  /* Disable text selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Create a centered horizontal line instead of using the minus character */
+.remove-icon::before {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 2px;
+  background-color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.edit-mode .drop-content {
+  animation: pulse 0.5s infinite alternate;
+  -webkit-animation: pulse 0.5s infinite alternate;
+}
+
+.edit-mode .remove-icon {
+  display: flex;
+}
+
+@keyframes pulse {
+  0% { border-color: rgba(255, 255, 255, 0.1); }
+  100% { border-color: rgba(255, 0, 0, 0.5); box-shadow: 0 0 10px rgba(255, 0, 0, 0.3); }
+}
+
+@-webkit-keyframes pulse {
+  0% { border-color: rgba(255, 255, 255, 0.1); }
+  100% { border-color: rgba(255, 0, 0, 0.5); box-shadow: 0 0 10px rgba(255, 0, 0, 0.3); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .drop-grid {
+    gap: 120px; /* Reduce gap on smaller screens */
   }
-  to {
-    transform: rotate(360deg);
+  
+  .diamond-group {
+    width: 280px;
+    height: 280px;
+    gap: 20px;
   }
+  
+  .drop-item {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+@media (max-width: 992px) {
+  .sidebar {
+    width: 90px;
+  }
+  
+  .sidebar-icon {
+    height: 60px;
+  }
+  
+  .sidebar-icon img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .main-content {
+    margin-left: 90px !important;
+    width: calc(100% - 90px);
+  }
+  
+  .gallery-container {
+    width: 280px;
+  }
+  
+  .gallery-title {
+    font-size: 20px;
+  }
+  
+  .gallery-item {
+    height: 85px;
+    padding: 8px 12px;
+  }
+  
+  .gallery-item-name {
+    font-size: 14px;
+  }
+  
+  .drop-grid {
+    gap: 80px;
+  }
+  
+  .diamond-group {
+    width: 260px;
+    height: 260px;
+    gap: 15px;
+  }
+  
+  .drop-item {
+    width: 115px;
+    height: 115px;
+  }
+  
+  .button-module-label {
+    margin-top: 35px;
+    font-size: 16px;
+  }
+}
+
+/* iPad and tablets portrait */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+  }
+  
+  .sidebar-icons {
+    gap: 20px;
+  }
+  
+  .sidebar-icon {
+    height: 55px;
+  }
+  
+  .sidebar-icon img {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .sidebar-tooltip {
+    font-size: 12px;
+    padding: 6px 10px;
+    right: -8px;
+  }
+  
+  .main-content {
+    margin-left: 70px !important;
+    width: calc(100% - 70px);
+  }
+  
+  .gallery-container {
+    width: 260px;
+  }
+  
+  .gallery-title {
+    font-size: 18px;
+    padding: 0 15px;
+  }
+  
+  .gallery-item {
+    height: 80px;
+    padding: 8px 10px;
+  }
+  
+  .gallery-item img {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .gallery-item-name {
+    font-size: 13px;
+  }
+  
+  .gallery-item.placed:after {
+    width: 20px;
+    height: 20px;
+    background-size: 12px;
+    right: 10px;
+  }
+  
+  .drop-grid {
+    gap: 40px;
+  }
+  
+  .diamond-group {
+    width: 220px;
+    height: 220px;
+    gap: 10px;
+  }
+  
+  .drop-item {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .image-title {
+    font-size: 9px;
+  }
+  
+  .button-module-label {
+    margin-top: 25px;
+    font-size: 14px;
+  }
+  
+  .remove-icon {
+    top: -10px;
+    right: -10px;
+    width: 26px;
+    height: 26px;
+    font-size: 24px;
+    line-height: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    width: 80px;
+  }
+  
+  .sidebar-icons {
+    gap: 15px;
+  }
+  
+  .sidebar-icon {
+    height: 50px;
+  }
+  
+  .sidebar-icon img {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .sidebar-tooltip {
+    right: -10px;
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  .main-content {
+    margin-left: 80px !important;
+    width: calc(100% - 80px);
+    padding: 10px;
+  }
+  
+  .drop-grid {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .diamond-group {
+    width: 180px;
+    height: 180px;
+    gap: 10px;
+  }
+  
+  .drop-item {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .image-title {
+    font-size: 8px;
+  }
+  
+  .plus-icon {
+    font-size: 18px;
+  }
+  
+  .remove-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+  }
+}
+
+/* Ensure images are not draggable by default in iOS */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none; /* For older Safari */
+  -moz-user-drag: none;
+  user-select: none; /* Use this instead of user-drag */
+}
+
+/* Add styles for touch drag and drop */
+.drop-diamond.drag-over {
+  background-color: rgba(100, 149, 237, 0.3) !important;
+  box-shadow: 0 0 15px rgba(100, 149, 237, 0.5) !important;
+  border: 1px solid rgba(100, 149, 237, 0.5) !important;
+}
+
+/* Style for the drag clone */
+#drag-clone {
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Ensure the app doesn't scroll during drag operations */
+.app-layout.dragging {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* Add styles for categories in the gallery */
+.gallery-category {
+  display: flex;
+  flex-direction: column;
+  margin-right: 30px;
+  min-width: 250px;
+  max-width: 400px;
+}
+
+.category-title {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  margin: 0 0 15px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: left;
+  font-weight: 600;
+}
+
+.category-items {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+/* Fallback for browsers that don't fully support grid */
+@supports not (display: grid) {
+  .diamond-group {
+    display: flex;
+    flex-wrap: wrap;
+    width: 180px;
+    height: 180px;
+    position: relative;
+  }
+  
+  .drop-item {
+    position: absolute;
+  }
+  
+  .diamond-group .drop-item:nth-child(1) {
+    top: 0;
+    left: 0;
+  }
+  
+  .diamond-group .drop-item:nth-child(2) {
+    top: 0;
+    right: 0;
+  }
+  
+  .diamond-group .drop-item:nth-child(3) {
+    bottom: 0;
+    left: 0;
+  }
+  
+  .diamond-group .drop-item:nth-child(4) {
+    bottom: 0;
+    right: 0;
+  }
+}
+
+/* iOS/iPadOS touch handling fixes */
+.drop-content img,
+.drop-content {
+  -webkit-touch-callout: none; /* iOS Safari */
+  touch-action: manipulation; /* Disable browser handling of all panning/zooming gestures */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Add CSS to prevent text selection on long press */
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.remove-icon.empty-remove {
+  opacity: 0.5; /* Make it slightly transparent when zone is empty */
+}
+
+/* Long press indicator animation */
+@keyframes longPressIndicator {
+  0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.3); }
+  100% { box-shadow: 0 0 0 8px rgba(255, 59, 48, 0); }
+}
+
+@-webkit-keyframes longPressIndicator {
+  0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.3); }
+  100% { box-shadow: 0 0 0 8px rgba(255, 59, 48, 0); }
+}
+
+.drop-content.long-pressing {
+  animation: longPressIndicator 1.2s infinite;
+  -webkit-animation: longPressIndicator 1.2s infinite;
+  border-color: rgba(255, 59, 48, 0.5);
+}
+
+/* Sidebar icon selectable states */
+.sidebar-icon.selectable {
+  cursor: pointer;
+  position: relative;
+}
+
+.sidebar-icon.non-selectable {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.sidebar-icon.non-selectable:hover img {
+  transform: none;
+  filter: brightness(0.8);
+}
+
+/* Only show active state for selectable icons */
+.sidebar-icon.selectable.active {
+  background: rgba(66, 133, 244, 0.1);
+  border-left: 4px solid #4285F4;
+}
+
+.sidebar-icon.selectable.active::before {
+  display: none; /* Remove the gradient bar */
+}
+
+.sidebar-icon:first-child {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  position: relative;
+  margin-top: 34px; /* Moved up by another 3px */
+}
+
+.sidebar-icon:first-child::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  width: 70%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-icon:first-child img {
+  transform: scale(1.2);
+  filter: brightness(1.3);
+}
+
+/* Override the active/hover scale down effect for first icon */
+.sidebar-icon:first-child:active,
+.sidebar-icon:first-child:hover {
+  transform: none;
+}
+
+.sidebar-icon:first-child:active img,
+.sidebar-icon:first-child:hover img {
+  transform: scale(1.2);
+}
+
+/* Override the mobile touch active state for first icon */
+@media (hover: none) {
+  .sidebar-icon:first-child:active {
+    background-color: transparent;
+    transform: none;
+  }
+  
+  .sidebar-icon:first-child:active img {
+    transform: scale(1.2);
+  }
+}
+
+/* Add labels for left and right button modules */
+.button-module-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Style left and right modules differently */
+.button-module-container.left-module .drop-content {
+  background: linear-gradient(135deg, rgba(30, 32, 45, 0.4), rgba(20, 22, 35, 0.3));
+  border: 1px solid rgba(180, 180, 255, 0.1);
+}
+
+.button-module-container.left-module .drop-content.has-image {
+  background: linear-gradient(135deg, rgba(22, 24, 34, 0.95) 0%, rgba(28, 30, 45, 0.9) 100%);
+  border: 1px solid rgba(180, 180, 255, 0.15);
+}
+
+.button-module-container.right-module .drop-content {
+  background: linear-gradient(135deg, rgba(30, 32, 45, 0.4), rgba(20, 22, 35, 0.3));
+  border: 1px solid rgba(180, 180, 255, 0.1);
+}
+
+.button-module-container.right-module .drop-content.has-image {
+  background: linear-gradient(135deg, rgba(22, 24, 34, 0.95) 0%, rgba(28, 30, 45, 0.9) 100%);
+  border: 1px solid rgba(180, 180, 255, 0.15);
+}
+
+.button-module-label {
+  margin-top: 45px;
+  font-size: 16px; /* Smaller */
+  color: rgba(255, 255, 255, 0.7); /* Lighter */
+  font-weight: 400; /* Less bold */
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-transform: none; /* Not all caps */
+}
+
+.button-module-container.left-module .button-module-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.button-module-container.right-module .button-module-label {
+  color: rgba(255, 255, 255, 0.7);
 }
