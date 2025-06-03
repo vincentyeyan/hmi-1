@@ -128,6 +128,16 @@ function ImageGallery({ images, placedImages }) {
     }
   }, [images]);
 
+  // Fix for handling the image URL correctly
+  const getImageUrl = (imageUrl) => {
+    if (typeof imageUrl === 'string') {
+      return imageUrl; // If it's already a string URL, use it directly
+    } else if (imageUrl && imageUrl.default) {
+      return imageUrl.default; // For webpack imported images
+    }
+    return ''; // Fallback
+  };
+
   return (
     <div className="gallery-container">
       <h3 className="gallery-title">Button Actions</h3>
@@ -155,7 +165,7 @@ function ImageGallery({ images, placedImages }) {
                     data-image-id={image.id}
                   >
                     <img 
-                      src={image.url} 
+                      src={getImageUrl(image.url)} 
                       alt={image.alt} 
                       draggable={false} // Prevent image dragging to improve overall drag experience
                     />

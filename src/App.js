@@ -4,12 +4,14 @@ import DropArea from './components/DropArea';
 import ImageGallery from './components/ImageGallery';
 import Sidebar from './components/Sidebar';
 import TouchDragHandler from './components/TouchDragHandler';
+import ESP32Connection from './components/ESP32Connection';
 // Import the gallery images from our images folder
 import { galleryImages } from './images';
 
 function App() {
   const [placedImages, setPlacedImages] = useState(Array(8).fill(null));
   const [editMode, setEditMode] = useState(false);
+  const [showESP32Settings, setShowESP32Settings] = useState(false);
 
   // Wrap handleDrop in useCallback to prevent it from changing on every render
   const handleDrop = useCallback((data, targetIndex) => {
@@ -54,6 +56,10 @@ function App() {
     setEditMode(!editMode);
   };
 
+  const toggleESP32Settings = () => {
+    setShowESP32Settings(!showESP32Settings);
+  };
+
   // Exit edit mode when clicking outside
   const handleOutsideClick = (e) => {
     if (editMode && 
@@ -65,7 +71,7 @@ function App() {
 
   return (
     <div className="app-layout">
-      <Sidebar />
+      <Sidebar onESPClick={toggleESP32Settings} />
       <TouchDragHandler />
       <div className={`main-content ${editMode ? 'edit-mode' : ''}`} onClick={handleOutsideClick}>
         <div className="content-wrapper">
@@ -76,13 +82,20 @@ function App() {
               <h1>Steering Wheel Buttons</h1>
               <p className="instruction-text">Long press an action, then drag and drop it to a button module.<br />Long press a button to remove an action.</p>
             </div>
-          <DropArea 
-            placedImages={placedImages}
-            onDrop={handleDrop}
-            onRemove={handleRemove}
-            editMode={editMode}
-            toggleEditMode={toggleEditMode}
-          />
+            
+            {showESP32Settings && (
+              <div style={{ margin: '20px 0', maxWidth: '400px', margin: '0 auto 20px' }}>
+                <ESP32Connection />
+              </div>
+            )}
+            
+            <DropArea 
+              placedImages={placedImages}
+              onDrop={handleDrop}
+              onRemove={handleRemove}
+              editMode={editMode}
+              toggleEditMode={toggleEditMode}
+            />
           </div>
         </div>
       </div>

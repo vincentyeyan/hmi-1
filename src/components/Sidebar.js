@@ -6,7 +6,7 @@ import myCar from '../images/icons/My Car.png';
 import shape from '../images/icons/Shape.png';
 import steeringAndPedals from '../images/icons/Steering and Pedals.png';
 
-function Sidebar() {
+function Sidebar({ onESPClick }) {
   const [activeIcon, setActiveIcon] = useState('buttonControls'); // Default to button controls
   
   const icons = [
@@ -21,7 +21,7 @@ function Sidebar() {
   const handleIconClick = (id, selectable) => {
     // Only update active state if the icon is selectable
     if (selectable) {
-    setActiveIcon(id);
+      setActiveIcon(id);
     }
   };
 
@@ -37,6 +37,17 @@ function Sidebar() {
             <img src={icon.src} alt={icon.alt} />
           </div>
         ))}
+        
+        {/* ESP32 Settings Button */}
+        <div 
+          className="esp-button"
+          onClick={onESPClick}
+          style={{
+            marginTop: '10px'
+          }}
+        >
+          ESP
+        </div>
       </div>
     </div>
   );

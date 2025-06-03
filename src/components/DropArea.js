@@ -13,6 +13,16 @@ function DropArea({ placedImages, onDrop, onRemove, editMode, toggleEditMode }) 
     return image ? image.alt : '';
   };
 
+  // Helper function to handle image URLs correctly
+  const getImageUrl = (imageUrl) => {
+    if (typeof imageUrl === 'string') {
+      return imageUrl; // If it's already a string URL, use it directly
+    } else if (imageUrl && imageUrl.default) {
+      return imageUrl.default; // For webpack imported images
+    }
+    return ''; // Fallback
+  };
+
   // Add effect to ensure indexes are added after render
   useEffect(() => {
     // Add data-index attributes to all drop items
@@ -146,7 +156,7 @@ function DropArea({ placedImages, onDrop, onRemove, editMode, toggleEditMode }) 
             onClick={(e) => e.preventDefault()}
           >
             <img 
-              src={placedImages[index].url}
+              src={getImageUrl(placedImages[index].url)}
               alt={`Control ${placedImages[index].id}`}
               draggable
               data-index={index}
